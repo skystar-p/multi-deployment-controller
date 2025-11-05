@@ -39,6 +39,7 @@
         {
           devShells.default = pkgs.mkShell {
             nativeBuildInputs = with pkgs; [
+              k3d
               rust-toolchain
             ];
           };
