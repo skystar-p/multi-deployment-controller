@@ -7,6 +7,10 @@ edition = "2024"
 name = "crdgen"
 path = "src/bin/crdgen.rs"
 
+[[bin]]
+name = "examplegen"
+path = "src/bin/examplegen.rs"
+
 [dependencies]
 anyhow = "1.0.100"
 futures-util = "0.3.31"
