@@ -8,6 +8,8 @@ use kube::{
 };
 use thiserror::Error;
 
+mod crd;
+
 #[derive(Error, Debug)]
 enum Error {
     #[error("Kubernetes error: {0}")]
