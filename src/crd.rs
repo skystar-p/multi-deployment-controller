@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use k8s_openapi::{
-    api::apps::v1::DeploymentSpec,
+    api::{apps::v1::DeploymentSpec, core::v1::PodSpec},
     serde::{Deserialize, Serialize},
 };
 use kube::CustomResource;
@@ -31,5 +31,5 @@ pub struct ChildDeployment {
     pub weight: Option<i32>,
     pub min_replicas: Option<i32>,
 
-    pub spec: DeploymentSpec,
+    pub pod_spec: PodSpec,
 }

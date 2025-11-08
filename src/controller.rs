@@ -1,6 +1,9 @@
 use std::{collections::BTreeMap, sync::Arc, time::Duration};
 
-use k8s_openapi::api::apps::v1::Deployment;
+use k8s_openapi::api::{
+    apps::v1::{Deployment, DeploymentSpec},
+    core::v1::PodTemplateSpec,
+};
 use kube::{
     Resource, ResourceExt,
     api::{ObjectMeta, Patch, PatchParams},
@@ -49,50 +52,48 @@ fn create_owned_deployment(
 ) -> Result<Deployment, Error> {
     let oref = source.controller_owner_ref(&()).unwrap();
     let source_name = source.name_any();
-    let mut child_deployment = source.spec.children.get(&child_name).unwrap().clone();
+    let child_deployment = source.spec.children.get(&child_name).unwrap();
 
-    // update child deployment's selector
-    child_deployment.spec.selector = source.spec.root_template.selector.clone();
-    // ensure match_labels is initialized
-    let child_match_labels = child_deployment
-        .spec
-        .selector
+    // create unique selector based on source and child names
+    let mut new_selector = source.spec.root_template.selector.clone();
+    new_selector
         .match_labels
-        .get_or_insert_with(|| BTreeMap::new());
-    // add unique label to match_labels
-    child_match_labels.insert(
-        LABEL_SELECTOR_KEY.to_string(),
-        format!("{}-{}", source_name, child_name),
-    );
-
-    // update child deployment's template metadata labels
-    let child_template_metadata = &mut child_deployment
-        .spec
-        .template
-        .metadata
-        .get_or_insert_with(|| ObjectMeta::default());
-
-    // inherit labels from root template
-    child_template_metadata.labels = source
-        .spec
-        .root_template
-        .template
-        .metadata
-        .as_ref()
-        .and_then(|m| m.labels.clone());
-
-    // add unique label to template labels
-    child_template_metadata
-        .labels
         .get_or_insert_with(|| BTreeMap::new())
         .insert(
             LABEL_SELECTOR_KEY.to_string(),
             format!("{}-{}", source_name, child_name),
         );
 
+    // create new labels based on root template labels
+    let mut new_labels = source
+        .spec
+        .root_template
+        .template
+        .metadata
+        .as_ref()
+        .and_then(|m| m.labels.clone())
+        .unwrap_or_default();
+    new_labels.insert(
+        LABEL_SELECTOR_KEY.to_string(),
+        format!("{}-{}", source_name, child_name),
+    );
+
+    // build child deployment spec
+    let child_deployment_data = DeploymentSpec {
+        selector: new_selector,
+        template: PodTemplateSpec {
+            metadata: Some(ObjectMeta {
+                labels: Some(new_labels),
+                ..Default::default()
+            }),
+            spec: Some(child_deployment.pod_spec.clone()),
+        },
+        ..source.spec.root_template.clone()
+    };
+
     // merge two deployment specs
     let mut root_spec = serde_json::to_value(&source.spec.root_template)?;
-    let child_spec = serde_json::to_value(&child_deployment.spec)?;
+    let child_spec = serde_json::to_value(&child_deployment_data)?;
 
     json_patch::merge(&mut root_spec, &child_spec);
     let root_spec = serde_json::from_value(root_spec)?;

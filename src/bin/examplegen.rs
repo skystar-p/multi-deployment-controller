@@ -52,21 +52,12 @@ fn main() {
                     ChildDeployment {
                         weight: Some(70),
                         min_replicas: Some(1),
-                        spec: DeploymentSpec {
-                            template: PodTemplateSpec {
-                                metadata: Some(ObjectMeta {
-                                    ..Default::default()
-                                }),
-                                spec: Some(PodSpec {
-                                    containers: vec![Container {
-                                        name: "alpine".to_string(),
-                                        image: Some("alpine:latest".to_string()),
-                                        ..Default::default()
-                                    }],
-                                    ..Default::default()
-                                }),
+                        pod_spec: PodSpec {
+                            containers: vec![Container {
+                                name: "alpine".to_string(),
+                                image: Some("alpine:latest".to_string()),
                                 ..Default::default()
-                            },
+                            }],
                             ..Default::default()
                         },
                     },
@@ -76,25 +67,12 @@ fn main() {
                     ChildDeployment {
                         weight: Some(30),
                         min_replicas: Some(1),
-                        spec: DeploymentSpec {
-                            template: PodTemplateSpec {
-                                metadata: Some(ObjectMeta {
-                                    labels: Some(BTreeMap::from([(
-                                        "app".to_string(),
-                                        "root-app".to_string(),
-                                    )])),
-                                    ..Default::default()
-                                }),
-                                spec: Some(PodSpec {
-                                    containers: vec![Container {
-                                        name: "ubuntu".to_string(),
-                                        image: Some("ubuntu:latest".to_string()),
-                                        ..Default::default()
-                                    }],
-                                    ..Default::default()
-                                }),
+                        pod_spec: PodSpec {
+                            containers: vec![Container {
+                                name: "ubuntu".to_string(),
+                                image: Some("ubuntu:latest".to_string()),
                                 ..Default::default()
-                            },
+                            }],
                             ..Default::default()
                         },
                     },
