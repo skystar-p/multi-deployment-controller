@@ -6,7 +6,7 @@ use kube::{
     api::{ObjectMeta, Patch, PatchParams},
     runtime::controller::Action,
 };
-use tracing::info;
+use tracing::{error, info};
 
 use crate::{
     crd::MultiDeployment,
@@ -36,7 +36,8 @@ pub async fn reconcile(obj: Arc<MultiDeployment>, ctx: Arc<Context>) -> Result<A
     Ok(Action::await_change())
 }
 
-pub fn error_policy(_obj: Arc<MultiDeployment>, _error: &Error, _ctx: Arc<Context>) -> Action {
+pub fn error_policy(_obj: Arc<MultiDeployment>, error: &Error, _ctx: Arc<Context>) -> Action {
+    error!("Reconciliation error: {:?}", error);
     Action::requeue(Duration::from_secs(5))
 }
 
