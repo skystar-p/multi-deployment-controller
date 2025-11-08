@@ -6,6 +6,7 @@ use kube::{
     api::{ObjectMeta, Patch, PatchParams},
     runtime::controller::Action,
 };
+use tracing::info;
 
 use crate::{
     crd::MultiDeployment,
@@ -13,6 +14,7 @@ use crate::{
 };
 
 pub async fn reconcile(obj: Arc<MultiDeployment>, ctx: Arc<Context>) -> Result<Action, Error> {
+    info!("Reconciling MultiDeployment: {}", obj.name_any());
     let _multi_deployments = ctx.multi_deployments.clone();
     let deployments = ctx.deployments.clone();
 
@@ -21,6 +23,7 @@ pub async fn reconcile(obj: Arc<MultiDeployment>, ctx: Arc<Context>) -> Result<A
         let server_side = PatchParams::apply("multi-deployment-controller");
 
         // create or patch the Deployment
+        info!("Reconciling Deployment: {}", deployment_data.name_any());
         deployments
             .patch(
                 &deployment_data.name_any(),

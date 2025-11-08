@@ -42,6 +42,8 @@
               k3d
               rust-toolchain
             ];
+
+            RUST_LOG = "info";
           };
         };
     };

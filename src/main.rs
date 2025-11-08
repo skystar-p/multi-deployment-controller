@@ -3,6 +3,7 @@ use std::sync::Arc;
 use futures_util::StreamExt;
 use k8s_openapi::api::apps::v1::Deployment;
 use kube::{Client, runtime::Controller};
+use tracing::info;
 
 use multi_deployment::{
     controller::{error_policy, reconcile},
@@ -12,6 +13,8 @@ use multi_deployment::{
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
+    tracing_subscriber::fmt::init();
+
     let client = Client::try_default().await?;
 
     let multi_deployments = kube::Api::<MultiDeployment>::default_namespaced(client.clone());
@@ -22,6 +25,7 @@ async fn main() -> Result<(), Error> {
     };
     let context = Arc::new(ctx);
 
+    info!("Starting MultiDeployment controller");
     Controller::new(multi_deployments, Default::default())
         .owns(deployments, Default::default())
         .run(reconcile, error_policy, context)
