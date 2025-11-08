@@ -1,8 +1,11 @@
 use std::collections::{BTreeMap, HashMap};
 
-use k8s_openapi::api::{
-    apps::v1::DeploymentSpec,
-    core::v1::{Container, PodSpec, PodTemplateSpec},
+use k8s_openapi::{
+    api::{
+        apps::v1::DeploymentSpec,
+        core::v1::{Container, PodSpec, PodTemplateSpec},
+    },
+    apimachinery::pkg::apis::meta::v1::LabelSelector,
 };
 use kube::api::ObjectMeta;
 use multi_deployment::crd::{ChildDeployment, MultiDeployment, MultiDeploymentSpec};
@@ -17,8 +20,19 @@ fn main() {
             name: "example-multideployment".to_string(),
             replicas: Some(3),
             root_template: DeploymentSpec {
+                selector: LabelSelector {
+                    match_labels: Some(BTreeMap::from([(
+                        "app".to_string(),
+                        "root-app".to_string(),
+                    )])),
+                    ..Default::default()
+                },
                 template: PodTemplateSpec {
                     metadata: Some(ObjectMeta {
+                        labels: Some(BTreeMap::from([(
+                            "app".to_string(),
+                            "root-app".to_string(),
+                        )])),
                         ..Default::default()
                     }),
                     spec: Some(PodSpec {
@@ -39,16 +53,24 @@ fn main() {
                         weight: Some(70),
                         min_replicas: Some(1),
                         spec: DeploymentSpec {
+                            selector: LabelSelector {
+                                match_labels: Some(BTreeMap::from([(
+                                    "app".to_string(),
+                                    "root-app".to_string(),
+                                )])),
+                                ..Default::default()
+                            },
                             template: PodTemplateSpec {
                                 metadata: Some(ObjectMeta {
                                     labels: Some(BTreeMap::from([(
                                         "app".to_string(),
-                                        "child-a-app".to_string(),
+                                        "root-app".to_string(),
                                     )])),
                                     ..Default::default()
                                 }),
                                 spec: Some(PodSpec {
                                     containers: vec![Container {
+                                        name: "alpine".to_string(),
                                         image: Some("alpine:latest".to_string()),
                                         ..Default::default()
                                     }],
@@ -66,16 +88,24 @@ fn main() {
                         weight: Some(30),
                         min_replicas: Some(1),
                         spec: DeploymentSpec {
+                            selector: LabelSelector {
+                                match_labels: Some(BTreeMap::from([(
+                                    "app".to_string(),
+                                    "root-app".to_string(),
+                                )])),
+                                ..Default::default()
+                            },
                             template: PodTemplateSpec {
                                 metadata: Some(ObjectMeta {
                                     labels: Some(BTreeMap::from([(
                                         "app".to_string(),
-                                        "child-b-app".to_string(),
+                                        "root-app".to_string(),
                                     )])),
                                     ..Default::default()
                                 }),
                                 spec: Some(PodSpec {
                                     containers: vec![Container {
+                                        name: "ubuntu".to_string(),
                                         image: Some("ubuntu:latest".to_string()),
                                         ..Default::default()
                                     }],
