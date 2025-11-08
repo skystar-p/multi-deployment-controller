@@ -53,19 +53,8 @@ fn main() {
                         weight: Some(70),
                         min_replicas: Some(1),
                         spec: DeploymentSpec {
-                            selector: LabelSelector {
-                                match_labels: Some(BTreeMap::from([(
-                                    "app".to_string(),
-                                    "root-app".to_string(),
-                                )])),
-                                ..Default::default()
-                            },
                             template: PodTemplateSpec {
                                 metadata: Some(ObjectMeta {
-                                    labels: Some(BTreeMap::from([(
-                                        "app".to_string(),
-                                        "root-app".to_string(),
-                                    )])),
                                     ..Default::default()
                                 }),
                                 spec: Some(PodSpec {
@@ -88,13 +77,6 @@ fn main() {
                         weight: Some(30),
                         min_replicas: Some(1),
                         spec: DeploymentSpec {
-                            selector: LabelSelector {
-                                match_labels: Some(BTreeMap::from([(
-                                    "app".to_string(),
-                                    "root-app".to_string(),
-                                )])),
-                                ..Default::default()
-                            },
                             template: PodTemplateSpec {
                                 metadata: Some(ObjectMeta {
                                     labels: Some(BTreeMap::from([(

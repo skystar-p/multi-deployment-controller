@@ -1,4 +1,4 @@
-use std::{sync::Arc, time::Duration};
+use std::{collections::BTreeMap, sync::Arc, time::Duration};
 
 use k8s_openapi::api::apps::v1::Deployment;
 use kube::{
@@ -12,6 +12,8 @@ use crate::{
     crd::MultiDeployment,
     types::{Context, Error},
 };
+
+const LABEL_SELECTOR_KEY: &str = "multi-deployment.skystar.dev/managed-by";
 
 pub async fn reconcile(obj: Arc<MultiDeployment>, ctx: Arc<Context>) -> Result<Action, Error> {
     info!("Reconciling MultiDeployment: {}", obj.name_any());
@@ -47,7 +49,46 @@ fn create_owned_deployment(
 ) -> Result<Deployment, Error> {
     let oref = source.controller_owner_ref(&()).unwrap();
     let source_name = source.name_any();
-    let child_deployment = source.spec.children.get(&child_name).unwrap();
+    let mut child_deployment = source.spec.children.get(&child_name).unwrap().clone();
+
+    // update child deployment's selector
+    child_deployment.spec.selector = source.spec.root_template.selector.clone();
+    // ensure match_labels is initialized
+    let child_match_labels = child_deployment
+        .spec
+        .selector
+        .match_labels
+        .get_or_insert_with(|| BTreeMap::new());
+    // add unique label to match_labels
+    child_match_labels.insert(
+        LABEL_SELECTOR_KEY.to_string(),
+        format!("{}-{}", source_name, child_name),
+    );
+
+    // update child deployment's template metadata labels
+    let child_template_metadata = &mut child_deployment
+        .spec
+        .template
+        .metadata
+        .get_or_insert_with(|| ObjectMeta::default());
+
+    // inherit labels from root template
+    child_template_metadata.labels = source
+        .spec
+        .root_template
+        .template
+        .metadata
+        .as_ref()
+        .and_then(|m| m.labels.clone());
+
+    // add unique label to template labels
+    child_template_metadata
+        .labels
+        .get_or_insert_with(|| BTreeMap::new())
+        .insert(
+            LABEL_SELECTOR_KEY.to_string(),
+            format!("{}-{}", source_name, child_name),
+        );
 
     // merge two deployment specs
     let mut root_spec = serde_json::to_value(&source.spec.root_template)?;
