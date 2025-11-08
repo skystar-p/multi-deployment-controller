@@ -1,20 +1,13 @@
-use std::{sync::Arc, time::Duration};
+use std::sync::Arc;
 
 use futures_util::StreamExt;
 use k8s_openapi::api::core::v1::Pod;
-use kube::{
-    Client, ResourceExt,
-    runtime::{Controller, controller::Action},
+use kube::{Client, runtime::Controller};
+
+use multi_deployment::{
+    controller::{error_policy, reconcile},
+    types::{Context, Error},
 };
-use thiserror::Error;
-
-mod crd;
-
-#[derive(Error, Debug)]
-enum Error {
-    #[error("Kubernetes error: {0}")]
-    KubeError(#[from] kube::Error),
-}
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
@@ -29,15 +22,4 @@ async fn main() -> Result<(), Error> {
         .await;
 
     Ok(())
-}
-
-struct Context {}
-
-async fn reconcile(obj: Arc<Pod>, ctx: Arc<Context>) -> Result<Action, Error> {
-    println!("Reconciling Pod: {}", obj.name_any());
-    Ok(Action::await_change())
-}
-
-fn error_policy(_obj: Arc<Pod>, _error: &Error, _ctx: Arc<Context>) -> Action {
-    Action::requeue(Duration::from_secs(5))
 }
