@@ -16,7 +16,11 @@ async fn main() -> Result<(), Error> {
 
     let multi_deployments = kube::Api::<MultiDeployment>::default_namespaced(client.clone());
     let deployments = kube::Api::<Deployment>::default_namespaced(client);
-    let context = Arc::new(Context {});
+    let ctx = Context {
+        multi_deployments: multi_deployments.clone(),
+        deployments: deployments.clone(),
+    };
+    let context = Arc::new(ctx);
 
     Controller::new(multi_deployments, Default::default())
         .owns(deployments, Default::default())

@@ -4,7 +4,7 @@ use k8s_openapi::{
     api::apps::v1::DeploymentSpec,
     serde::{Deserialize, Serialize},
 };
-use kube::{CustomResource, api::ObjectMeta};
+use kube::CustomResource;
 use schemars::JsonSchema;
 
 #[derive(CustomResource, Deserialize, Serialize, Clone, Debug, JsonSchema)]
