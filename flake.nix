@@ -37,6 +37,9 @@
           };
         in
         {
+          packages = {
+            default = pkgs.callPackage ./package.nix { };
+          };
           devShells.default = pkgs.mkShell {
             nativeBuildInputs = with pkgs; [
               k3d
