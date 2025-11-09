@@ -41,5 +41,6 @@ pub struct ChildDeployment {
     #[serde(rename = "minReplicas")]
     pub min_replicas: Option<i32>,
 
+    #[serde(rename = "podSpec")]
     pub pod_spec: PodSpec,
 }
