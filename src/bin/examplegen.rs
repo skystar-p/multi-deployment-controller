@@ -38,6 +38,7 @@ fn main() {
                     spec: Some(PodSpec {
                         containers: vec![Container {
                             image: Some("nginx:latest".to_string()),
+                            name: "nginx".to_string(),
                             ..Default::default()
                         }],
                         ..Default::default()
