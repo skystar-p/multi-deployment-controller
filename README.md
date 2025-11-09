@@ -2,6 +2,10 @@
 
 This controller lets you make multiple deployments based on root template with some derivations, with weighted replica count assignment and minimum replica.
 
+## Use cases
+* Deploy some pods on spot node, but with minimum guaranteed pod count of on-demand pods.
+* Deploy canary with different image tag, and environment variables.
+
 ## Usage
 
 1. Apply CRD.
@@ -72,7 +76,3 @@ cargo run --bin multi-deployment
 ```bash
 kubectl autoscale multideployments example --min=2 --max=20 --cpu=50%
 ```
-
-## Use cases
-* Deploy some pods on spot node, but with minimum guaranteed pod count of on-demand pods.
-* Deploy canary with different image tag, and environment variables.
