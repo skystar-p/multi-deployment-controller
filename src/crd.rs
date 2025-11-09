@@ -18,7 +18,7 @@ use schemars::JsonSchema;
 #[kube(scale(
     spec_replicas_path = ".spec.replicas",
     status_replicas_path = ".status.replicas",
-    label_selector_path = ".spec.labelSelector.rootTemplate.selector"
+    label_selector_path = ".status.selector"
 ))]
 pub struct MultiDeploymentSpec {
     pub name: String,
@@ -32,6 +32,7 @@ pub struct MultiDeploymentSpec {
 #[derive(Deserialize, Serialize, Clone, Debug, JsonSchema)]
 pub struct MultiDeploymentStatus {
     replicas: Option<i32>,
+    selector: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, JsonSchema)]

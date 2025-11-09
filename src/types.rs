@@ -16,6 +16,8 @@ pub enum Error {
     KubeError(#[from] kube::Error),
     #[error("JSON serialization error: {0}")]
     JsonError(#[from] serde_json::Error),
+    #[error("Parse error: {0}")]
+    ParseError(#[from] kube::core::ParseExpressionError),
     #[error("Validation error: {0}")]
     ValidationError(String),
     #[error("Replica calcuataion error: {0}")]

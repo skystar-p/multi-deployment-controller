@@ -5,9 +5,7 @@ use k8s_openapi::api::{
     core::v1::PodTemplateSpec,
 };
 use kube::{
-    Resource, ResourceExt,
-    api::{ObjectMeta, Patch, PatchParams},
-    runtime::controller::Action,
+    Resource, ResourceExt, api::{ObjectMeta, Patch, PatchParams}, core::Selector, runtime::controller::Action
 };
 use tracing::{error, info};
 
@@ -131,12 +129,15 @@ pub async fn reconcile(obj: Arc<MultiDeployment>, ctx: Arc<Context>) -> Result<A
             .await?;
     }
 
+    let selector: Selector = obj.spec.root_template.selector.clone().try_into()?;
+
     // patch status
     let status = serde_json::json!({
         "apiVersion": format!("{}/{}", RESOURCE_GROUP, RESOURCE_VERSION),
         "kind": RESOURCE_KIND,
         "status": {
             "replicas": total_replicas,
+            "selector": selector.to_string(),
         },
     });
     let patch_params = PatchParams::apply(CONTROLLER_NAME).force();
