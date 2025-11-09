@@ -6,6 +6,15 @@ This controller lets you make multiple deployments based on root template with s
 * Deploy some pods on spot node, but with minimum guaranteed pod count of on-demand pods.
 * Deploy canary with different image tag, and environment variables.
 
+## Build
+
+```bash
+cargo build --release
+
+# or, use Nix
+nix build
+```
+
 ## Usage
 
 1. Apply CRD.
@@ -69,6 +78,7 @@ kubectl apply -f example.yaml
 
 ```bash
 cargo run --bin multi-deployment
+# if you prefer Nix, then use `nix run`
 ```
 
 1. (Optional) Add HPA.
