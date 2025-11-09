@@ -17,12 +17,16 @@ use crate::{
     utils,
 };
 
+const RESOURCE_GROUP: &str = "skystar.dev";
+const RESOURCE_VERSION: &str = "v1";
+const RESOURCE_KIND: &str = "MultiDeployment";
+
 const CONTROLLER_NAME: &str = "multi-deployment-controller";
 const LABEL_SELECTOR_KEY: &str = "multi-deployment.skystar.dev/managed-by";
 
 pub async fn reconcile(obj: Arc<MultiDeployment>, ctx: Arc<Context>) -> Result<Action, Error> {
     info!("Reconciling MultiDeployment: {}", obj.name_any());
-    let _multi_deployments = ctx.multi_deployments.clone();
+    let multi_deployments = ctx.multi_deployments.clone();
     let deployments = ctx.deployments.clone();
 
     // check that at least one child deployment is defined
@@ -126,6 +130,19 @@ pub async fn reconcile(obj: Arc<MultiDeployment>, ctx: Arc<Context>) -> Result<A
             )
             .await?;
     }
+
+    // patch status
+    let status = serde_json::json!({
+        "apiVersion": format!("{}/{}", RESOURCE_GROUP, RESOURCE_VERSION),
+        "kind": RESOURCE_KIND,
+        "status": {
+            "replicas": total_replicas,
+        },
+    });
+    let patch_params = PatchParams::apply(CONTROLLER_NAME).force();
+    multi_deployments
+        .patch_status(&obj.name_any(), &patch_params, &Patch::Apply(status))
+        .await?;
 
     Ok(Action::await_change())
 }

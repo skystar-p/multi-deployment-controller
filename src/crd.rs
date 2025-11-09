@@ -15,20 +15,29 @@ use schemars::JsonSchema;
     namespaced
 )]
 #[kube(status = "MultiDeploymentStatus")]
+#[kube(scale(
+    spec_replicas_path = ".spec.replicas",
+    status_replicas_path = ".status.replicas",
+    label_selector_path = ".spec.labelSelector.rootTemplate.selector"
+))]
 pub struct MultiDeploymentSpec {
     pub name: String,
     pub replicas: Option<i32>,
 
+    #[serde(rename = "rootTemplate")]
     pub root_template: DeploymentSpec,
     pub children: BTreeMap<String, ChildDeployment>,
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug, JsonSchema)]
-pub struct MultiDeploymentStatus {}
+pub struct MultiDeploymentStatus {
+    replicas: Option<i32>,
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone, JsonSchema)]
 pub struct ChildDeployment {
     pub weight: Option<i32>,
+    #[serde(rename = "minReplicas")]
     pub min_replicas: Option<i32>,
 
     pub pod_spec: PodSpec,
