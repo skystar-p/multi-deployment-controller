@@ -132,7 +132,7 @@ pub async fn reconcile(obj: Arc<MultiDeployment>, ctx: Arc<Context>) -> Result<A
 
 pub fn error_policy(_obj: Arc<MultiDeployment>, error: &Error, _ctx: Arc<Context>) -> Action {
     error!("Reconciliation error: {:?}", error);
-    Action::requeue(Duration::from_secs(5))
+    Action::requeue(Duration::from_secs(5 * 60))
 }
 
 fn create_owned_deployment(
