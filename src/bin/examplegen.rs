@@ -8,7 +8,7 @@ use k8s_openapi::{
     apimachinery::pkg::{api::resource::Quantity, apis::meta::v1::LabelSelector},
 };
 use kube::api::ObjectMeta;
-use multi_deployment::crd::{ChildDeployment, MultiDeployment, MultiDeploymentSpec};
+use multi_deployment_controller::crd::{ChildDeployment, MultiDeployment, MultiDeploymentSpec};
 
 fn main() {
     let md = MultiDeployment {

@@ -5,7 +5,7 @@ use k8s_openapi::api::apps::v1::Deployment;
 use kube::{Client, runtime::Controller};
 use tracing::info;
 
-use multi_deployment::{
+use multi_deployment_controller::{
     controller::{error_policy, reconcile},
     crd::MultiDeployment,
     types::{Context, Error},

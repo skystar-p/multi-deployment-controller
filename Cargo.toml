@@ -1,5 +1,5 @@
 [package]
-name = "multi-deployment"
+name = "multi-deployment-controller"
 version = "0.1.0"
 edition = "2024"
 

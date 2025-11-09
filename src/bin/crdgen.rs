@@ -1,6 +1,6 @@
 use kube::CustomResourceExt;
 
-use multi_deployment::crd::MultiDeployment;
+use multi_deployment_controller::crd::MultiDeployment;
 
 fn main() {
     print!(
