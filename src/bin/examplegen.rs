@@ -3,9 +3,9 @@ use std::collections::BTreeMap;
 use k8s_openapi::{
     api::{
         apps::v1::DeploymentSpec,
-        core::v1::{Container, PodSpec, PodTemplateSpec},
+        core::v1::{Container, PodSpec, PodTemplateSpec, ResourceRequirements},
     },
-    apimachinery::pkg::apis::meta::v1::LabelSelector,
+    apimachinery::pkg::{api::resource::Quantity, apis::meta::v1::LabelSelector},
 };
 use kube::api::ObjectMeta;
 use multi_deployment::crd::{ChildDeployment, MultiDeployment, MultiDeploymentSpec};
@@ -36,11 +36,6 @@ fn main() {
                         ..Default::default()
                     }),
                     spec: Some(PodSpec {
-                        containers: vec![Container {
-                            image: Some("nginx:latest".to_string()),
-                            name: "nginx".to_string(),
-                            ..Default::default()
-                        }],
                         ..Default::default()
                     }),
                     ..Default::default()
@@ -55,8 +50,16 @@ fn main() {
                         min_replicas: Some(1),
                         pod_spec: PodSpec {
                             containers: vec![Container {
-                                name: "alpine".to_string(),
-                                image: Some("alpine:latest".to_string()),
+                                name: "debian".to_string(),
+                                image: Some("debian:latest".to_string()),
+                                args: Some(vec!["sleep".to_string(), "3600".to_string()]),
+                                resources: Some(ResourceRequirements {
+                                    requests: Some(BTreeMap::from([(
+                                        "cpu".to_string(),
+                                        Quantity("100m".to_string()),
+                                    )])),
+                                    ..Default::default()
+                                }),
                                 ..Default::default()
                             }],
                             ..Default::default()
@@ -72,6 +75,14 @@ fn main() {
                             containers: vec![Container {
                                 name: "ubuntu".to_string(),
                                 image: Some("ubuntu:latest".to_string()),
+                                args: Some(vec!["sleep".to_string(), "3600".to_string()]),
+                                resources: Some(ResourceRequirements {
+                                    requests: Some(BTreeMap::from([(
+                                        "cpu".to_string(),
+                                        Quantity("100m".to_string()),
+                                    )])),
+                                    ..Default::default()
+                                }),
                                 ..Default::default()
                             }],
                             ..Default::default()
