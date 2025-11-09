@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use k8s_openapi::{
     api::{apps::v1::DeploymentSpec, core::v1::PodSpec},
@@ -20,7 +20,7 @@ pub struct MultiDeploymentSpec {
     pub replicas: Option<i32>,
 
     pub root_template: DeploymentSpec,
-    pub children: HashMap<String, ChildDeployment>,
+    pub children: BTreeMap<String, ChildDeployment>,
 }
 
 #[derive(Deserialize, Serialize, Clone, Debug, JsonSchema)]

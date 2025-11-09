@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, HashMap};
+use std::collections::BTreeMap;
 
 use k8s_openapi::{
     api::{
@@ -46,7 +46,7 @@ fn main() {
                 },
                 ..Default::default()
             },
-            children: HashMap::from([
+            children: BTreeMap::from([
                 (
                     "child-a".to_string(),
                     ChildDeployment {
